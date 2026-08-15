@@ -1,0 +1,7 @@
+# Development and CI tooling. Runtime code has zero external dependencies —
+# see requirements.txt. Install these only if you're running the test/lint/
+# type-check/security-scan suite locally.
+flake8
+mypy
+pytest
+bandit

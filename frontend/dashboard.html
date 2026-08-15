@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI-Obs Run Explorer</title>
+    <link rel="stylesheet" href="./dashboard.css">
+    <script id="run-data" type="application/json">
+[
+  {
+    "id": "run-observe-001",
+    "status": "COMPLETED",
+    "metadata": {
+      "startedAt": "2026-06-18T07:12:00Z",
+      "durationMs": 18420,
+      "estimatedCostUsd": "0.42"
+    },
+    "stepCount": 3,
+    "observationCount": 3,
+    "steps": [
+      {
+        "id": "step-ingest",
+        "name": "Ingest service health",
+        "expectedState": {
+          "ingest.status": "ok"
+        },
+        "events": [
+          "probe started",
+          "probe finished"
+        ]
+      },
+      {
+        "id": "step-score",
+        "name": "Score anomaly signal",
+        "expectedState": {
+          "score.status": "stable"
+        },
+        "events": [
+          "scoring started",
+          "scoring finished"
+        ]
+      },
+      {
+        "id": "step-store",
+        "name": "Persist evaluation",
+        "expectedState": {
+          "store.status": "written"
+        },
+        "events": [
+          "write started",
+          "write confirmed"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "id": "obs-ingest",
+        "runId": "run-observe-001",
+        "stepId": "step-ingest",
+        "fact": "Ingest service returned healthy state.",
+        "observedState": {
+          "ingest.status": "ok"
+        }
+      },
+      {
+        "id": "obs-score",
+        "runId": "run-observe-001",
+        "stepId": "step-score",
+        "fact": "Anomaly score stayed inside the stable band.",
+        "observedState": {
+          "score.status": "stable"
+        }
+      },
+      {
+        "id": "obs-store",
+        "runId": "run-observe-001",
+        "stepId": "step-store",
+        "fact": "Evaluation artifact was persisted.",
+        "observedState": {
+          "store.status": "written"
+        }
+      }
+    ],
+    "evaluation": {
+      "id": "eval-observe-001",
+      "runId": "run-observe-001",
+      "result": "MATCH",
+      "expectedState": {
+        "ingest.status": "ok",
+        "score.status": "stable",
+        "store.status": "written"
+      },
+      "observedState": {
+        "ingest.status": "ok",
+        "score.status": "stable",
+        "store.status": "written"
+      },
+      "matches": [
+        "ingest.status",
+        "score.status",
+        "store.status"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "mismatched": []
+    }
+  },
+  {
+    "id": "run-observe-002",
+    "status": "COMPLETED",
+    "metadata": {
+      "startedAt": "2026-06-18T07:20:00Z",
+      "durationMs": 27610,
+      "estimatedCostUsd": "0.57"
+    },
+    "stepCount": 3,
+    "observationCount": 3,
+    "steps": [
+      {
+        "id": "step-ingest",
+        "name": "Ingest service health",
+        "expectedState": {
+          "ingest.status": "ok"
+        },
+        "events": [
+          "probe started",
+          "probe finished"
+        ]
+      },
+      {
+        "id": "step-score",
+        "name": "Score anomaly signal",
+        "expectedState": {
+          "score.status": "stable",
+          "latency.band": "normal"
+        },
+        "events": [
+          "scoring started",
+          "scoring finished"
+        ]
+      },
+      {
+        "id": "step-store",
+        "name": "Persist evaluation",
+        "expectedState": {
+          "store.status": "written"
+        },
+        "events": [
+          "write started",
+          "write confirmed"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "id": "obs-ingest",
+        "runId": "run-observe-002",
+        "stepId": "step-ingest",
+        "fact": "Ingest service returned healthy state.",
+        "observedState": {
+          "ingest.status": "ok"
+        }
+      },
+      {
+        "id": "obs-score",
+        "runId": "run-observe-002",
+        "stepId": "step-score",
+        "fact": "Anomaly score rose while latency exceeded the normal band.",
+        "observedState": {
+          "score.status": "warning",
+          "latency.band": "high",
+          "queue.depth": "elevated"
+        }
+      },
+      {
+        "id": "obs-store",
+        "runId": "run-observe-002",
+        "stepId": "step-store",
+        "fact": "Evaluation artifact was persisted.",
+        "observedState": {
+          "store.status": "written"
+        }
+      }
+    ],
+    "evaluation": {
+      "id": "eval-observe-002",
+      "runId": "run-observe-002",
+      "result": "MISMATCH",
+      "expectedState": {
+        "ingest.status": "ok",
+        "score.status": "stable",
+        "latency.band": "normal",
+        "store.status": "written"
+      },
+      "observedState": {
+        "ingest.status": "ok",
+        "score.status": "warning",
+        "latency.band": "high",
+        "queue.depth": "elevated",
+        "store.status": "written"
+      },
+      "matches": [
+        "ingest.status",
+        "store.status"
+      ],
+      "missing": [],
+      "unexpected": [
+        "queue.depth"
+      ],
+      "mismatched": [
+        {
+          "key": "latency.band",
+          "expected": "normal",
+          "observed": "high"
+        },
+        {
+          "key": "score.status",
+          "expected": "stable",
+          "observed": "warning"
+        }
+      ]
+    }
+  },
+  {
+    "id": "run-observe-003",
+    "status": "RUNNING",
+    "metadata": {
+      "startedAt": "2026-06-18T07:34:00Z",
+      "durationMs": 9200,
+      "estimatedCostUsd": "0.21"
+    },
+    "stepCount": 2,
+    "observationCount": 1,
+    "steps": [
+      {
+        "id": "step-ingest",
+        "name": "Ingest service health",
+        "expectedState": {
+          "ingest.status": "ok"
+        },
+        "events": [
+          "probe started",
+          "probe finished"
+        ]
+      },
+      {
+        "id": "step-score",
+        "name": "Score anomaly signal",
+        "expectedState": {
+          "score.status": "stable"
+        },
+        "events": [
+          "scoring started"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "id": "obs-ingest",
+        "runId": "run-observe-003",
+        "stepId": "step-ingest",
+        "fact": "Ingest service returned healthy state.",
+        "observedState": {
+          "ingest.status": "ok"
+        }
+      }
+    ],
+    "evaluation": null
+  },
+  {
+    "id": "run-observe-004",
+    "status": "COMPLETED",
+    "metadata": {
+      "startedAt": "2026-06-18T07:46:00Z",
+      "durationMs": 31580,
+      "estimatedCostUsd": "0.64"
+    },
+    "stepCount": 3,
+    "observationCount": 3,
+    "steps": [
+      {
+        "id": "step-ingest",
+        "name": "Ingest service health",
+        "expectedState": {
+          "ingest.status": "ok"
+        },
+        "events": [
+          "probe started",
+          "probe finished"
+        ]
+      },
+      {
+        "id": "step-score",
+        "name": "Score anomaly signal",
+        "expectedState": {
+          "score.status": "stable"
+        },
+        "events": [
+          "scoring started",
+          "scoring finished"
+        ]
+      },
+      {
+        "id": "step-store",
+        "name": "Persist evaluation",
+        "expectedState": {
+          "store.status": "written"
+        },
+        "events": [
+          "write started",
+          "write failed"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "id": "obs-ingest",
+        "runId": "run-observe-004",
+        "stepId": "step-ingest",
+        "fact": "Ingest service returned healthy state.",
+        "observedState": {
+          "ingest.status": "ok"
+        }
+      },
+      {
+        "id": "obs-score",
+        "runId": "run-observe-004",
+        "stepId": "step-score",
+        "fact": "Anomaly score stayed inside the stable band.",
+        "observedState": {
+          "score.status": "stable"
+        }
+      },
+      {
+        "id": "obs-store",
+        "runId": "run-observe-004",
+        "stepId": "step-store",
+        "fact": "Evaluation artifact persistence failed.",
+        "observedState": {
+          "store.status": "failed"
+        }
+      }
+    ],
+    "evaluation": {
+      "id": "eval-observe-004",
+      "runId": "run-observe-004",
+      "result": "MISMATCH",
+      "expectedState": {
+        "ingest.status": "ok",
+        "score.status": "stable",
+        "store.status": "written"
+      },
+      "observedState": {
+        "ingest.status": "ok",
+        "score.status": "stable",
+        "store.status": "failed"
+      },
+      "matches": [
+        "ingest.status",
+        "score.status"
+      ],
+      "missing": [],
+      "unexpected": [],
+      "mismatched": [
+        {
+          "key": "store.status",
+          "expected": "written",
+          "observed": "failed"
+        }
+      ]
+    }
+  }
+]
+    </script>
+    <script src="./dashboard.js" defer></script>
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <header class="dashboard-header">
+        <div>
+          <p class="eyebrow">AI-Obs Kernel</p>
+          <h1>Run Explorer</h1>
+        </div>
+        <dl class="summary-strip" aria-label="Run summary">
+          <div>
+            <dt>Total</dt>
+            <dd id="summary-total">0</dd>
+          </div>
+          <div>
+            <dt>Completed</dt>
+            <dd id="summary-completed">0</dd>
+          </div>
+          <div>
+            <dt>Mismatches</dt>
+            <dd id="summary-mismatches">0</dd>
+          </div>
+          <div>
+            <dt>Error signals</dt>
+            <dd id="summary-errors">0</dd>
+          </div>
+        </dl>
+      </header>
+
+      <section class="toolbar" aria-label="Run explorer filters">
+        <div class="filter-group" aria-label="Run state filter">
+          <button type="button" data-state-filter="ALL">All</button>
+          <button type="button" data-state-filter="SUCCESS">Success</button>
+          <button type="button" data-state-filter="FAILED">Failed</button>
+          <button type="button" data-state-filter="RUNNING">Running</button>
+        </div>
+        <div class="filter-group" aria-label="Evaluation filter">
+          <button type="button" data-result-filter="ALL">All results</button>
+          <button type="button" data-result-filter="MATCH">Match</button>
+          <button type="button" data-result-filter="MISMATCH">Mismatch</button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <aside class="run-list-panel" aria-label="Run Explorer">
+          <h2>Run Explorer</h2>
+          <div id="run-list" class="run-list"></div>
+        </aside>
+
+        <section class="run-detail-panel" aria-labelledby="detail-title">
+          <div class="detail-heading">
+            <div>
+              <p class="eyebrow">Run Summary</p>
+              <h2 id="detail-title">No run selected</h2>
+            </div>
+            <span id="detail-status" class="status-badge">Idle</span>
+          </div>
+
+          <dl class="metric-grid" aria-label="Selected run summary">
+            <div>
+              <dt>Status</dt>
+              <dd id="metric-status">--</dd>
+            </div>
+            <div>
+              <dt>Duration</dt>
+              <dd id="metric-duration">--</dd>
+            </div>
+            <div>
+              <dt>Steps</dt>
+              <dd id="metric-steps">--</dd>
+            </div>
+            <div>
+              <dt>Observations</dt>
+              <dd id="metric-observations">--</dd>
+            </div>
+            <div>
+              <dt>Error Signal</dt>
+              <dd id="metric-error">--</dd>
+            </div>
+            <div>
+              <dt>Estimated Cost</dt>
+              <dd id="metric-cost">--</dd>
+            </div>
+          </dl>
+
+          <section class="error-section" aria-labelledby="error-title">
+            <div class="section-heading">
+              <h3 id="error-title">Errors</h3>
+              <span id="error-severity" class="status-badge">None</span>
+            </div>
+            <div id="error-summary" class="error-summary"></div>
+          </section>
+
+          <section class="timeline-section" aria-labelledby="timeline-title">
+            <h3 id="timeline-title">Timeline</h3>
+            <ol id="timeline" class="timeline"></ol>
+          </section>
+
+          <section class="evaluation-section" aria-labelledby="evaluation-title">
+            <div class="section-heading">
+              <h3 id="evaluation-title">Evaluation</h3>
+              <span id="evaluation-result" class="status-badge">Pending</span>
+            </div>
+            <div id="evaluation-delta" class="delta-grid"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
