@@ -1,13 +1,11 @@
-"""End-to-end test for the P3N-106 implementation of the P3N-105 contracts.
+"""End-to-end test for the canonical mapping layer.
 
 Exercises the full chain in one pass: Kernel run capture (with real
 timestamps) -> operational observability metrics/alerts -> anomaly
 detection -> canonical mapping (status vocabulary, run shape, latency
-metric names). Asserts the resulting shapes actually satisfy the active
-contracts (docs/kernel/contracts/kernelrun-serialization-contract-v0.1.md,
-docs/kernel/contracts/run-status-contract-v0.3.md,
-docs/kernel/contracts/latency-compatibility-mapping-contract-v0.1.md),
-not just that individual functions return expected values in isolation.
+metric names). Asserts the resulting shapes satisfy the canonical vocabulary
+described in docs/api.md, not just that individual functions return expected
+values in isolation.
 """
 
 import re
@@ -35,7 +33,7 @@ CANONICAL_STATUS_VOCABULARY = {
 }
 
 
-class P3N106EndToEndTest(unittest.TestCase):
+class CanonicalMappingEndToEndTest(unittest.TestCase):
     def test_full_chain_from_kernel_to_canonical_output(self) -> None:
         store = InMemoryKernelStore()
 

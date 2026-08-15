@@ -1,15 +1,12 @@
-"""Canonical output mapping for the P3N-105 contract resolution (P3N-106).
+"""Canonical output mapping over existing Kernel payloads and metrics.
 
-Implements, read-only, over existing Kernel payloads and
-``OperationalMetrics``:
+Maps, read-only, onto a canonical vocabulary (see docs/api.md's Canonical
+Mapping section for the full mapping tables):
 
-- ``docs/kernel/contracts/run-status-contract-v0.3.md`` (status vocabulary)
-- ``docs/kernel/contracts/kernelrun-serialization-contract-v0.1.md``
-  (canonical run/step shape)
-- ``docs/kernel/contracts/api-compatibility-mapping-contract-v0.1.md``
-  (identifier field mapping)
-- ``docs/kernel/contracts/latency-compatibility-mapping-contract-v0.1.md``
-  (latency metric mapping)
+- run status vocabulary
+- canonical run/step shape
+- identifier field mapping
+- latency metric name mapping
 
 This module only renames/reshapes existing output. It does not compute new
 metrics, does not mutate Kernel state, does not perform I/O, and does not
@@ -142,13 +139,11 @@ def to_canonical_run(run: KernelRunInput) -> CanonicalRun:
 def to_canonical_latency_metrics(
     metrics: OperationalMetrics,
 ) -> dict[str, float | None]:
-    """Map ``OperationalMetrics`` latency fields to the canonical metric
-    names defined by
-    ``docs/kernel/contracts/latency-compatibility-mapping-contract-v0.1.md``.
+    """Map ``OperationalMetrics`` latency fields to canonical metric names.
 
-    Maps only the two metrics that contract defines. It does not compute new
-    metrics and does not redefine ``run.duration.ms``/``step.duration.ms``,
-    which remain owned by ``docs/kernel/metric-dictionary.md``.
+    Maps only these two metrics. It does not compute new metrics and does
+    not redefine ``run.duration.ms``/``step.duration.ms`` — see
+    docs/metrics.md for the metrics this module reads from, unchanged.
     """
 
     return {

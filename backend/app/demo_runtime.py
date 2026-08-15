@@ -1,4 +1,4 @@
-"""Deterministic end-to-end observable runtime demonstration for P3N-102.
+"""Deterministic end-to-end observable runtime demonstration.
 
 This module wires the existing Kernel store, operational observability
 metrics, and detection engine together and renders every stage to the
@@ -10,9 +10,9 @@ It introduces no new metric, threshold, detection rule, event schema, or
 status enum. It only calls the existing pure functions in ``app.kernel``,
 ``app.operational_observability``, and ``app.run_anomaly_detection`` and
 renders their existing output shapes. It does not read, write, or otherwise
-touch ``frontend/dashboard.html`` or ``frontend/dashboard.js``; the P3N-85
-detection-to-dashboard linkage contract governs that surface only, and this
-module is a separate, additive, terminal-only renderer.
+touch ``frontend/dashboard.html`` or ``frontend/dashboard.js`` — the static
+dashboard is a separate presentation surface, and this module is a
+separate, additive, terminal-only renderer.
 """
 
 from __future__ import annotations

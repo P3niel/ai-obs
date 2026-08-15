@@ -10,7 +10,7 @@ error type with its own message) intentionally stays local to each module;
 this module only centralizes the coercion logic that was previously
 copy-pasted verbatim, character-for-character, across
 ``operational_observability.py``, ``run_comparison.py``, ``replay.py``, and
-``canonical_mapping.py`` (P3N-111).
+``canonical_mapping.py``.
 """
 
 from __future__ import annotations

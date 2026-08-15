@@ -1,9 +1,9 @@
 """Metrics-to-detection handoff artifact helpers.
 
-This module implements the P3N-87 runtime boundary defined by the active
-metrics-to-detection handoff contract. It produces and consumes the versioned
-artifact only; detector thresholds, decisions, dashboard fields, storage, and
-transport are intentionally outside this module.
+Produces and consumes a versioned handoff artifact for the ``run.count``
+metric — the only metric currently exchanged this way rather than read
+directly (see docs/metrics.md). Detector thresholds, decisions, dashboard
+fields, storage, and transport are intentionally outside this module.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ CONTRACT_VERSION = "metrics-detection-handoff/v0.1"
 PRODUCER = "metrics"
 CONSUMER = "detection"
 SOURCE_PAYLOAD_CONTRACT = "KernelRun.to_dict"
-METRIC_SOURCE_CONTRACT = "docs/kernel/metric-dictionary.md"
+METRIC_SOURCE_CONTRACT = "docs/metrics.md"
 
 SUPPORTED_HANDOFF_METRIC_UNITS: Mapping[str, str | None] = {
     "run.count": None,

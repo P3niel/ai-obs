@@ -1,16 +1,13 @@
 """Minimal runtime Kernel for run truth capture.
 
 The Kernel records what a run expected, what it observed, and the
-deterministic delta between those two states. It is intentionally in-process
-and runtime-only: it does not read CTX metadata, influence CI, or decide merge
-authority.
+deterministic delta between those two states. It is intentionally
+in-process and runtime-only.
 
-Run and step timestamps follow
-``docs/kernel/contracts/run-temporal-contract-v0.2.md`` and
-``docs/kernel/contracts/kernelrun-serialization-contract-v0.1.md``
-(``P3N-105``/``P3N-106``): ISO-8601 UTC with millisecond precision, exposed
-verbatim as ``run_start_timestamp``, ``run_end_timestamp``,
-``step_start_timestamp``, and ``step_end_timestamp``.
+Run and step timestamps are ISO-8601 UTC with millisecond precision,
+exposed verbatim as ``run_start_timestamp``, ``run_end_timestamp``,
+``step_start_timestamp``, and ``step_end_timestamp``. See docs/event-schema.md
+for the full payload shape.
 """
 
 from __future__ import annotations

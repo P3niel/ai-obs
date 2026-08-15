@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single-command entry point for the P3N-102 observable runtime demo.
+"""Single-command entry point for the observable runtime demo.
 
 Usage (from the repository root):
 
@@ -32,7 +32,7 @@ from app.demo_runtime import run_console_demo  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the P3N-102 observable runtime demo: event generator -> "
+            "Run the observable runtime demo: event generator -> "
             "Kernel -> storage -> metrics -> detection -> console."
         ),
     )

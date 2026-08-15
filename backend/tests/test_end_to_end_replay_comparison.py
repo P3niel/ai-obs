@@ -1,6 +1,6 @@
-"""End-to-end test for the P3N-111 shared payload-coercion extraction.
+"""End-to-end test for the shared payload-coercion extraction.
 
-Exercises the four modules that now import their coercion helpers from
+Exercises the four modules that import their coercion helpers from
 ``app.payload_coercion`` (``operational_observability``, ``canonical_mapping``,
 ``replay``, and ``run_comparison``) together, over Kernel run payloads built
 through the real ``InMemoryKernelStore``. The goal is to confirm the
@@ -52,7 +52,7 @@ def _record_run(
     return payload
 
 
-class P3N111EndToEndTest(unittest.TestCase):
+class PayloadCoercionEndToEndTest(unittest.TestCase):
     def test_shared_coercion_helpers_work_across_every_consumer(
         self,
     ) -> None:

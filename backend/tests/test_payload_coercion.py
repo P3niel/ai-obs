@@ -1,4 +1,4 @@
-"""Unit tests for the shared payload-coercion helpers (P3N-111)."""
+"""Unit tests for the shared payload-coercion helpers."""
 
 import unittest
 
