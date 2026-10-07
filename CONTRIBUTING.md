@@ -12,8 +12,9 @@ python3 -m venv .venv
 .venv/bin/pip install -r backend/requirements-dev.txt
 ```
 
-`backend/requirements.txt` is intentionally empty — the runtime code has no
-external dependencies. `requirements-dev.txt` installs the lint/type-check/
+`backend/requirements.txt` pins one runtime dependency, `rfc8785`, used only by
+the M3 behavioral stability evaluator; the rest of the runtime code uses only
+the standard library. `requirements-dev.txt` installs the lint/type-check/
 test/security-scan toolchain.
 
 ## Running the checks
