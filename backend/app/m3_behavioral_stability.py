@@ -157,6 +157,19 @@ def _valid_id(value: Any) -> bool:
     return isinstance(value, str) and value.strip() != ""
 
 
+def _valid_run_id(value: Any) -> bool:
+    # A run_id enters the canonical (RFC 8785) digest, which cannot encode an
+    # unpaired surrogate; such a string is not valid Unicode, so reject it
+    # during validation instead of failing at digest time.
+    if not _valid_id(value):
+        return False
+    try:
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        return False
+    return True
+
+
 def _valid_timestamp(value: Any) -> bool:
     if not isinstance(value, str) or not _TIMESTAMP_SHAPE.fullmatch(value):
         return False
@@ -213,7 +226,9 @@ def _run_errors(
     for key in run:
         if key not in _RUN_FIELDS:
             found.add(("UNKNOWN_FIELD", _property_path(base, str(key))))
-    for name in ("run_id", "target_id", "system_version"):
+    if not _valid_run_id(run.get("run_id")):
+        found.add(("INVALID_RUN_RECORD", f"{base}.run_id"))
+    for name in ("target_id", "system_version"):
         if not _valid_id(run.get(name)):
             found.add(("INVALID_RUN_RECORD", f"{base}.{name}"))
     start_ok = _valid_timestamp(run.get("run_start_timestamp"))
@@ -242,7 +257,7 @@ def _run_errors(
         if not _valid_id(event.get("event_type")):
             found.add(("INVALID_RUN_RECORD", f"{where}.event_type"))
     run_id = run.get("run_id")
-    if isinstance(run_id, str) and _valid_id(run_id):
+    if isinstance(run_id, str) and _valid_run_id(run_id):
         if run_id in seen:
             found.add(("DUPLICATE_RUN_ID", f"{base}.run_id"))
         seen.add(run_id)
