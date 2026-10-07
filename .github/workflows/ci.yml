@@ -27,7 +27,7 @@ jobs:
         run: flake8 backend
 
       - name: Typecheck
-        run: mypy backend/app backend/run_demo.py
+        run: mypy backend/app backend/run_demo.py backend/m2_demo.py
 
       - name: Test
         working-directory: backend

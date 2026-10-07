@@ -249,6 +249,43 @@ Important classes and values:
 - `RunAnomalyReport`
 - `SUPPORTED_ANOMALY_CONDITIONS`
 
+## Drift and Stability Evaluators
+
+Three pure, read-only modules. Each takes caller-supplied, already-resolved
+inputs, keeps no state, performs no I/O, and never mutates its input. None of
+them collects evidence or builds its own inputs; see the README.
+
+`app.passive_drift_evaluation.evaluate_passive_drift(payload)` takes an input
+with `contract_version` `passive-drift-evaluation-input/v0.2`, an
+`evaluation_id`, an `m1` mapping and an `m2` mapping. Both scores must be finite
+numbers in `[0, 1]` (booleans, strings, NaN, infinities, and out-of-range
+integers of any size are rejected). The result's `to_dict()` is either
+evaluable, with `drift = |M1 - M2|` and `signed_delta = M1 - M2`, or not
+evaluable, with `non_evaluable_reasons` and no `drift` or `signed_delta`. M1 and
+M2 must match exactly on `source_run_id`, `target_id`, `system_version`, and
+`observation_window_id`. An invalid contract version or evaluation identity
+raises `PassiveDriftContractInputError`. The result has no threshold, class,
+severity, or action field.
+
+`app.m1_observation_producer.produce_m1_observation(...)` takes one terminal
+evidence qualification, its revocations, the resolved evidence views
+(`EvidenceView`), the evaluation profile, and the run identifiers. It returns an
+`M1ProductionResult`: either one binary `M1ObservationPayload` or no
+observation with a `reason_code` (for example `EVIDENCE_MISSING` or
+`INTEGRITY_VALIDATION_FAILED`). `to_passive_drift_m1()` returns the `m1` mapping
+that `evaluate_passive_drift` accepts.
+
+`app.m3_behavioral_stability.evaluate_m3_behavioral_stability(payload)` takes
+`contract_version` `m3-behavioral-stability-input/v0.1`, an `evaluation_id`,
+`target_id`, `system_version`, `as_of`, and a list of runs with their events. It
+returns the share of comparable runs that follow the most frequent event
+structure (`m3`), or a non-evaluable result when fewer than 10 comparable runs
+are available. An input that violates the contract raises
+`M3ContractInputError` with the list of errors.
+
+`backend/m2_demo.py` runs nine synthetic scenarios on these modules; see the demo
+guide.
+
 ## Dashboard Linkage
 
 The dashboard remains a static review surface over embedded Kernel-compatible

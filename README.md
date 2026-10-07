@@ -70,6 +70,25 @@ Everything below is implemented and covered by tests in `backend/tests/`:
 - **`backend/run_demo.py`** — a single-command, zero-dependency, terminal
   demonstration of the full pipeline (event → Kernel → metrics →
   detection → console), separate from the static dashboard.
+- **`backend/app/passive_drift_evaluation.py`** — a passive, read-only
+  evaluation of one run's drift magnitude `D = |M1 − M2|` from caller-supplied
+  M1 (observed outcome) and M2 (represented outcome) scores, or a structured
+  non-evaluable result. No threshold, class, or alert is attached to `D`.
+- **`backend/app/m1_observation_producer.py`** — a pure function that emits
+  one binary M1 observation from an already-resolved evidence qualification,
+  or abstains with a reason code. It does not collect or qualify evidence.
+- **`backend/app/m3_behavioral_stability.py`** — a pure evaluator of
+  behavioral stability (M3): the share of comparable runs that follow the most
+  frequent event structure. It measures structural stability, not the
+  correctness of answers, and it is not a confidence score.
+- **`backend/m2_demo.py`** — nine synthetic scenarios that run the three
+  modules above (see [Drift and stability demo](#demo)).
+
+**These evaluators are not a pipeline.** The evidence qualification, the
+resolved evidence facts, the M2 value, and the M3 run records are all supplied
+by the caller. Nothing in this repository collects evidence, qualifies it,
+stores qualifications, produces M2, or builds M3 records, and no end-to-end
+drift scenario on real data exists yet.
 
 See [docs/metrics.md](docs/metrics.md) and [docs/detection.md](docs/detection.md)
 for the exact, code-verified list of what's computed — including what's
@@ -103,7 +122,7 @@ Full detail, including explicit limitations, in
 
 ## Demo
 
-Two independent demos exist. Both are verified to run from a clean clone.
+Three independent demos exist. Each is verified to run from a clean clone.
 
 **Static dashboard** — click through example runs in a browser:
 
@@ -120,7 +139,15 @@ python3 -m venv .venv
 .venv/bin/python3 backend/run_demo.py
 ```
 
-See [docs/demo.md](docs/demo.md) for a full walkthrough of both.
+**Drift and stability demo** — nine synthetic scenarios on the passive
+evaluators (needs `pip install -r backend/requirements.txt`; synthetic inputs,
+not a pipeline):
+
+```bash
+.venv/bin/python3 backend/m2_demo.py
+```
+
+See [docs/demo.md](docs/demo.md) for a full walkthrough of all three.
 
 ![Run dashboard](docs/assets/screenshots/run-dashboard.png)
 
@@ -128,7 +155,7 @@ See [docs/demo.md](docs/demo.md) for a full walkthrough of both.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r backend/requirements.txt        # empty — no runtime deps
+.venv/bin/pip install -r backend/requirements.txt        # rfc8785, used by the M3 evaluator only
 .venv/bin/pip install -r backend/requirements-dev.txt     # lint/type/test/security tooling
 ```
 
@@ -143,7 +170,7 @@ Run the full validation gate (same as CI):
 
 ```bash
 .venv/bin/flake8 backend
-.venv/bin/mypy backend/app backend/run_demo.py
+.venv/bin/mypy backend/app backend/run_demo.py backend/m2_demo.py
 cd backend && ../.venv/bin/pytest -q && cd ..
 .venv/bin/bandit -r backend
 ```
@@ -162,9 +189,16 @@ cd backend && ../.venv/bin/pytest -q && cd ..
 - Static Run Explorer dashboard over example data
 - Zero-dependency, single-command terminal demo of the full pipeline
 - One versioned metrics→detection handoff artifact (`run.count` only)
+- Passive drift magnitude, M1 observation producer, and M3 behavioral
+  stability evaluators, each on caller-supplied inputs (synthetic demo only;
+  not a pipeline)
 
 **Planned**
 
+- A real pipeline feeding the drift and stability evaluators: evidence
+  collection and qualification, a qualification store, an M2 producer with an
+  authoritative source of target and system version, and a producer of M3 run
+  records (currently: all supplied by the caller)
 - HTTP API and durable persistence (currently: in-process Python module API
   only, no server, no database)
 - Live dashboard feed from the detection engine (currently: dashboard shows

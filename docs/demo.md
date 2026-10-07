@@ -101,6 +101,53 @@ output it produces, for every event:
 - "Success" / "Errors" in the demo metrics map to the Kernel evaluation
   `matchCount` / `mismatchCount`, not a separate status.
 
+## Drift and Stability Demo (synthetic)
+
+`backend/m2_demo.py` runs the passive M1/M2 drift evaluator and the M3
+behavioral stability evaluator on nine deterministic, hand-written scenarios.
+It calls the real code in `backend/app/`; it is **not** a pipeline.
+
+```bash
+python3 backend/m2_demo.py          # readable output
+python3 backend/m2_demo.py --json   # machine-readable output
+```
+
+The demo needs the `rfc8785` package (`pip install -r backend/requirements.txt`).
+
+### What is supplied, not produced
+
+- The evidence qualification, the resolved evidence facts, and the M2 value are
+  written into the scenarios. Nothing collects or qualifies evidence, stores a
+  qualification, or produces an M2 belief.
+- M1 and M2 form one branch (`produce_m1_observation`, then
+  `evaluate_passive_drift`). M3 is a separate branch on its own run records and
+  does not depend on M1 or M2.
+
+### Scenarios and expected results
+
+| # | Scenario | Result |
+| -- | -- | -- |
+| 1 | M1 = 1, M2 = 1 | D = 0, signed delta = 0 |
+| 2 | Observed failure M1 = 0, represented success M2 = 1 | D = 1, signed delta = -1 |
+| 3 | Referenced evidence absent | M1 abstains (`EVIDENCE_MISSING`), no D |
+| 4 | Declared evidence integrity invalid | M1 abstains (`INTEGRITY_VALIDATION_FAILED`), no D |
+| 5 | M1 and M2 refer to different system versions | Non-evaluable, no D |
+| 6 | M3 on 10 runs, one event structure | M3 = 1 |
+| 7 | M3 on 10 runs, two equally frequent structures | M3 = 0.5 |
+| 8 | M3 on 9 runs | Non-evaluable, no M3 value |
+| 9 | Scenario 2 repeated | Identical result |
+
+`backend/tests/test_m2_demo.py` asserts these results.
+
+### Limits
+
+- `D = |M1 - M2|` is a passive magnitude. No threshold, class, or alert is
+  attached to it, and none is implied.
+- M3 measures structural stability of event sequences. It does not measure the
+  correctness of answers and it is not Confidence.
+- The scenarios are synthetic. They show how the evaluators behave on valid,
+  missing, and non-comparable inputs; they do not show behavior on real data.
+
 ## General Talking Points
 
 - Kernel payloads capture expected state, observed state, and the

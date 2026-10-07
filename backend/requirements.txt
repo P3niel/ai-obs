@@ -1,1 +1,4 @@
-# Intentionally minimal for the initial scaffold.
+# Runtime dependency of the M3 behavioral stability evaluator (RFC 8785
+# canonical JSON, used to digest the selected runs). The Kernel, observability,
+# detection, replay, and comparison modules use only the standard library.
+rfc8785==0.1.4

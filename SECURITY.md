@@ -21,7 +21,7 @@ than contractual.
 ## Scope
 
 This repository ships a prototype: an in-memory backend (`backend/app/`)
-with zero external runtime dependencies, and a static, read-only run
+with one pinned external runtime dependency (`rfc8785`), and a static, read-only run
 dashboard (`frontend/dashboard.html`) reading embedded example data. There
 is no deployed production service, no user-facing authentication, and no
 live database. Most classic web-application vulnerability classes (session
