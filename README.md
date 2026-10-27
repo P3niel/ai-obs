@@ -8,6 +8,32 @@ delta between the two, and surfaces metrics and alerts over that delta.
 is real and tested. Everything under Planned is not — and the README says
 so explicitly rather than blurring the line.
 
+## Start Here
+
+New to the project? Read [Concepts](docs/concepts.md). It answers three
+questions with real demo output:
+
+1. **What does AI-Obs measure, and why?** The gap between what a system
+   believes happened (M2) and what qualified evidence says happened (M1).
+2. **Why are classic tools not always enough?** Metrics, logs and traces tell
+   you whether a run executed, not whether the system's belief matches
+   reality.
+3. **How does the gap become observable?** Qualified evidence, the M1
+   producer, the passive drift value `D`, then the Kernel output with a
+   health status.
+
+All inputs are simulated and the demos are deterministic. There is no real
+collect-qualify-produce pipeline and no correction in this repository; the
+limits are listed in
+[Concepts: what this showcase does not claim](docs/concepts.md#what-this-showcase-does-not-claim).
+Start with the main scenario:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+.venv/bin/python3 backend/kernel_output_demo.py
+```
+
 ## What is AI-Obs?
 
 An AI system's internal signals — a tool call returning `200`, a step
@@ -83,6 +109,12 @@ Everything below is implemented and covered by tests in `backend/tests/`:
   correctness of answers, and it is not a confidence score.
 - **`backend/m2_demo.py`** — nine synthetic scenarios that run the three
   modules above (see [Drift and stability demo](#demo)).
+- **`backend/app/kernel_output.py`** — a stateless, read-only assembler of
+  `{drift, bias, stability, status}` from the passive drift result and the
+  M3 result, with the status `healthy | warning | critical | unclassified`.
+  The output is informational and never triggers an action.
+- **`backend/kernel_output_demo.py`** — seven simulated belief-versus-reality
+  scenarios that run the real evaluators and the assembler above.
 
 **These evaluators are not a pipeline.** The evidence qualification, the
 resolved evidence facts, the M2 value, and the M3 run records are all supplied
@@ -122,7 +154,7 @@ Full detail, including explicit limitations, in
 
 ## Demo
 
-Three independent demos exist. Each is verified to run from a clean clone.
+Four independent demos exist. Each is verified to run from a clean clone.
 
 **Static dashboard** — click through example runs in a browser:
 
@@ -147,7 +179,15 @@ not a pipeline):
 .venv/bin/python3 backend/m2_demo.py
 ```
 
-See [docs/demo.md](docs/demo.md) for a full walkthrough of all three.
+**Belief versus reality demo** — the main scenario: seven simulated cases of
+the gap between what a system believes (M2) and what reality shows (M1), with
+a health status (same setup as above; simulated inputs, not a pipeline):
+
+```bash
+.venv/bin/python3 backend/kernel_output_demo.py
+```
+
+See [docs/demo.md](docs/demo.md) for a full walkthrough of all four.
 
 ![Run dashboard](docs/assets/screenshots/run-dashboard.png)
 
@@ -170,7 +210,7 @@ Run the full validation gate (same as CI):
 
 ```bash
 .venv/bin/flake8 backend
-.venv/bin/mypy backend/app backend/run_demo.py backend/m2_demo.py
+.venv/bin/mypy backend/app backend/run_demo.py backend/m2_demo.py backend/kernel_output_demo.py
 cd backend && ../.venv/bin/pytest -q && cd ..
 .venv/bin/bandit -r backend
 ```
@@ -192,6 +232,8 @@ cd backend && ../.venv/bin/pytest -q && cd ..
 - Passive drift magnitude, M1 observation producer, and M3 behavioral
   stability evaluators, each on caller-supplied inputs (synthetic demo only;
   not a pipeline)
+- Kernel output assembler (drift, bias, stability, status) over those
+  evaluators, with a seven-scenario simulated demo
 
 **Planned**
 

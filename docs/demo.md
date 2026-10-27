@@ -148,6 +148,49 @@ The demo needs the `rfc8785` package (`pip install -r backend/requirements.txt`)
 - The scenarios are synthetic. They show how the evaluators behave on valid,
   missing, and non-comparable inputs; they do not show behavior on real data.
 
+## Belief versus Reality Demo (simulated)
+
+`backend/kernel_output_demo.py` shows what AI-Obs exists for: the gap between
+what a system believes (M2) and what reality shows (M1), with a health status.
+It runs the real passive drift evaluator, the real M3 evaluator and the real
+Kernel output assembler (`backend/app/kernel_output.py`) on seven deterministic
+scenarios. It is **not** a pipeline.
+
+```bash
+python3 backend/kernel_output_demo.py          # readable output
+python3 backend/kernel_output_demo.py --json   # machine-readable output
+```
+
+### What is supplied, not produced
+
+- M1, M2 and the run records are written into the scenarios and labelled
+  `simulated`. Nothing collects or qualifies evidence, produces an M2 belief, or
+  derives run records from a Kernel store.
+- The end of the evaluated run comes from the supplied run records.
+
+### Scenarios and expected results
+
+| # | Scenario | Drift | Stability | Status |
+| -- | -- | -- | -- | -- |
+| 1 | Belief matches reality, stable behavior | 0.05 | 0.95 | `healthy` |
+| 2 | Belief overshoots reality | 0.2 | 0.8 | `warning` |
+| 3 | Belief far from reality | 1 | 0 | `critical` |
+| 4 | Small gap but unstable behavior | 0.05 | 0.2833 | `unclassified` (`HEALTH_REGION_UNDEFINED`) |
+| 5 | Not enough comparable runs, small gap | 0.05 | unavailable | `unclassified` (`STABILITY_UNAVAILABLE`) |
+| 6 | Not enough comparable runs, large gap | 1 | unavailable | `critical` |
+| 7 | Belief and reality not comparable | not evaluable | unavailable | `unclassified` (`DRIFT_NOT_EVALUABLE`) |
+
+### Limits
+
+- The output is informational (`authoritative: false`). It triggers no action.
+  The demo's note about a "Safety Gate" refers to a later component that is
+  not part of this repository.
+- `unclassified` is a fourth status outside the three states of the Kernel
+  contract: the contract classifies neither a small gap with stability of 0.5 or
+  less nor an unavailable input, and the output says so instead of guessing.
+- The scenarios are synthetic. They show how the assembler behaves, not
+  behavior on real data. The static dashboard does not show this output.
+
 ## General Talking Points
 
 - Kernel payloads capture expected state, observed state, and the
