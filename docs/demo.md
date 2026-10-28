@@ -1,7 +1,8 @@
 # Demo Guide
 
 There are two separate demos in this repo: a static dashboard you click
-through, and a terminal script that runs the actual pipeline end to end.
+through, and a terminal script that runs the operational pipeline on
+synthetic events.
 They are independent — the terminal demo does not read or write the
 dashboard's files.
 
@@ -44,8 +45,8 @@ http://127.0.0.1:8000/frontend/dashboard.html
 
 ## Runtime Pipeline Demo
 
-`backend/run_demo.py` is a separate, additive demonstration of the full
-observable runtime pipeline, distinct from the static dashboard above:
+`backend/run_demo.py` is a separate, additive demonstration of the
+operational pipeline on synthetic events, distinct from the static dashboard above:
 
 ```text
 Event Generator -> Kernel -> Storage -> Metrics -> Detection -> Console
@@ -100,6 +101,96 @@ output it produces, for every event:
   `frontend/dashboard.html` or `frontend/dashboard.js`.
 - "Success" / "Errors" in the demo metrics map to the Kernel evaluation
   `matchCount` / `mismatchCount`, not a separate status.
+
+## Drift and Stability Demo (synthetic)
+
+`backend/m2_demo.py` runs the passive M1/M2 drift evaluator and the M3
+behavioral stability evaluator on nine deterministic, hand-written scenarios.
+It calls the real code in `backend/app/`; it is **not** a pipeline.
+
+```bash
+python3 backend/m2_demo.py          # readable output
+python3 backend/m2_demo.py --json   # machine-readable output
+```
+
+The demo needs the `rfc8785` package (`pip install -r backend/requirements.txt`).
+
+### What is supplied, not produced
+
+- The evidence qualification, the resolved evidence facts, and the M2 value are
+  written into the scenarios. Nothing collects or qualifies evidence, stores a
+  qualification, or produces an M2 belief.
+- M1 and M2 form one branch (`produce_m1_observation`, then
+  `evaluate_passive_drift`). M3 is a separate branch on its own run records and
+  does not depend on M1 or M2.
+
+### Scenarios and expected results
+
+| # | Scenario | Result |
+| -- | -- | -- |
+| 1 | M1 = 1, M2 = 1 | D = 0, signed delta = 0 |
+| 2 | Observed failure M1 = 0, represented success M2 = 1 | D = 1, signed delta = -1 |
+| 3 | Referenced evidence absent | M1 abstains (`EVIDENCE_MISSING`), no D |
+| 4 | Declared evidence integrity invalid | M1 abstains (`INTEGRITY_VALIDATION_FAILED`), no D |
+| 5 | M1 and M2 refer to different system versions | Non-evaluable, no D |
+| 6 | M3 on 10 runs, one event structure | M3 = 1 |
+| 7 | M3 on 10 runs, two equally frequent structures | M3 = 0.5 |
+| 8 | M3 on 9 runs | Non-evaluable, no M3 value |
+| 9 | Scenario 2 repeated | Identical result |
+
+`backend/tests/test_m2_demo.py` asserts these results.
+
+### Limits
+
+- `D = |M1 - M2|` is a passive magnitude. No threshold, class, or alert is
+  attached to it, and none is implied.
+- M3 measures structural stability of event sequences. It does not measure the
+  correctness of answers and it is not Confidence.
+- The scenarios are synthetic. They show how the evaluators behave on valid,
+  missing, and non-comparable inputs; they do not show behavior on real data.
+
+## Belief versus Reality Demo (simulated)
+
+`backend/kernel_output_demo.py` shows what AI-Obs exists for: the gap between
+what a system believes (M2) and what reality shows (M1), with a health status.
+It runs the real passive drift evaluator, the real M3 evaluator and the real
+Kernel output assembler (`backend/app/kernel_output.py`) on seven deterministic
+scenarios. It is **not** a pipeline.
+
+```bash
+python3 backend/kernel_output_demo.py          # readable output
+python3 backend/kernel_output_demo.py --json   # machine-readable output
+```
+
+### What is supplied, not produced
+
+- M1, M2 and the run records are written into the scenarios and labelled
+  `simulated`. Nothing collects or qualifies evidence, produces an M2 belief, or
+  derives run records from a Kernel store.
+- The end of the evaluated run comes from the supplied run records.
+
+### Scenarios and expected results
+
+| # | Scenario | Drift | Stability | Status |
+| -- | -- | -- | -- | -- |
+| 1 | Belief matches reality, stable behavior | 0.05 | 0.95 | `healthy` |
+| 2 | Belief overshoots reality | 0.2 | 0.8 | `warning` |
+| 3 | Belief far from reality | 1 | 0 | `critical` |
+| 4 | Small gap but unstable behavior | 0.05 | 0.2833 | `unclassified` (`HEALTH_REGION_UNDEFINED`) |
+| 5 | Not enough comparable runs, small gap | 0.05 | unavailable | `unclassified` (`STABILITY_UNAVAILABLE`) |
+| 6 | Not enough comparable runs, large gap | 1 | unavailable | `critical` |
+| 7 | Belief and reality not comparable | not evaluable | unavailable | `unclassified` (`DRIFT_NOT_EVALUABLE`) |
+
+### Limits
+
+- The output is informational (`authoritative: false`). It triggers no action.
+  The demo's note about a "Safety Gate" refers to a later component that is
+  not part of this repository.
+- `unclassified` is a fourth status outside the three states of the Kernel
+  contract: the contract classifies neither a small gap with stability of 0.5 or
+  less nor an unavailable input, and the output says so instead of guessing.
+- The scenarios are synthetic. They show how the assembler behaves, not
+  behavior on real data. The static dashboard does not show this output.
 
 ## General Talking Points
 

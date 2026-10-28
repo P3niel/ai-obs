@@ -8,6 +8,32 @@ delta between the two, and surfaces metrics and alerts over that delta.
 is real and tested. Everything under Planned is not — and the README says
 so explicitly rather than blurring the line.
 
+## Start Here
+
+New to the project? Read [Concepts](docs/concepts.md). It answers three
+questions with real demo output:
+
+1. **What does AI-Obs measure, and why?** The gap between what a system
+   believes happened (M2) and what qualified evidence says happened (M1).
+2. **Why are classic tools not always enough?** Metrics, logs and traces tell
+   you whether a run executed, not whether the system's belief matches
+   reality.
+3. **How does the gap become observable?** Qualified evidence, the M1
+   producer, the passive drift value `D`, then the Kernel output with a
+   health status.
+
+All inputs are simulated and the demos are deterministic. There is no real
+collect-qualify-produce pipeline and no correction in this repository; the
+limits are listed in
+[Concepts: what this showcase does not claim](docs/concepts.md#what-this-showcase-does-not-claim).
+Start with the main scenario:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+.venv/bin/python3 backend/kernel_output_demo.py
+```
+
 ## What is AI-Obs?
 
 An AI system's internal signals — a tool call returning `200`, a step
@@ -19,16 +45,21 @@ divergence a first-class, observable thing:
 Gap = Representation − Reality
 ```
 
-In this MVP, that's not a metaphor — it's the literal mechanism at the
-core of the Kernel (`backend/app/kernel.py`): every run step declares an
-*expected state*, every observation reports a *observed state*, and the
-Kernel computes a deterministic diff between the two (`MATCH` /
-`MISMATCH`, with the specific missing, unexpected, and mismatched keys).
-That's the whole of what "Gap" means today: a narrow, per-run,
-key/value comparison — not a statistical drift detector, not a
-confidence-recalibration system, not a trend over time. Those are
-directions the project could grow into, not things it does now (see
-[Roadmap](#roadmap)).
+In this MVP, that's not a metaphor. In the Kernel (`backend/app/kernel.py`)
+every run step declares an *expected state*, every observation reports an
+*observed state*, and the Kernel computes a deterministic diff between the
+two (`MATCH` / `MISMATCH`, with the specific missing, unexpected, and
+mismatched keys): a narrow, per-run, key/value comparison.
+
+On top of it, the passive drift evaluator computes `D = |M1 − M2|` between
+what qualified evidence says happened (M1) and what the system believes
+(M2), and the Kernel output assembler turns `D` and behavioral stability
+into a health status (see [Concepts](docs/concepts.md)). `D` is a
+magnitude with no threshold in the evaluator, and in this repository M1, M2
+and the run records are supplied by the demos. It is not a statistical
+drift detector over time, not a confidence-recalibration system, and not a
+correction mechanism. Those are directions the project could grow into, not
+things it does now (see [Roadmap](#roadmap)).
 
 ## Why
 
@@ -68,8 +99,34 @@ Everything below is implemented and covered by tests in `backend/tests/`:
   over embedded example Kernel payloads: filtering, per-run timelines,
   error/mismatch highlighting, and evaluation deltas.
 - **`backend/run_demo.py`** — a single-command, zero-dependency, terminal
-  demonstration of the full pipeline (event → Kernel → metrics →
-  detection → console), separate from the static dashboard.
+  demonstration of the operational pipeline on synthetic events (event →
+  Kernel → metrics → detection → console), separate from the static
+  dashboard. It is not a collect-qualify-produce pipeline.
+- **`backend/app/passive_drift_evaluation.py`** — a passive, read-only
+  evaluation of one run's drift magnitude `D = |M1 − M2|` from caller-supplied
+  M1 (observed outcome) and M2 (represented outcome) scores, or a structured
+  non-evaluable result. No threshold, class, or alert is attached to `D`.
+- **`backend/app/m1_observation_producer.py`** — a pure function that emits
+  one binary M1 observation from an already-resolved evidence qualification,
+  or abstains with a reason code. It does not collect or qualify evidence.
+- **`backend/app/m3_behavioral_stability.py`** — a pure evaluator of
+  behavioral stability (M3): the share of comparable runs that follow the most
+  frequent event structure. It measures structural stability, not the
+  correctness of answers, and it is not a confidence score.
+- **`backend/m2_demo.py`** — nine synthetic scenarios that run the three
+  modules above (see [Drift and stability demo](#demo)).
+- **`backend/app/kernel_output.py`** — a stateless, read-only assembler of
+  `{drift, bias, stability, status}` from the passive drift result and the
+  M3 result, with the status `healthy | warning | critical | unclassified`.
+  The output is informational and never triggers an action.
+- **`backend/kernel_output_demo.py`** — seven simulated belief-versus-reality
+  scenarios that run the real evaluators and the assembler above.
+
+**These evaluators are not a pipeline.** The evidence qualification, the
+resolved evidence facts, the M2 value, and the M3 run records are all supplied
+by the caller. Nothing in this repository collects evidence, qualifies it,
+stores qualifications, produces M2, or builds M3 records, and no end-to-end
+drift scenario on real data exists yet.
 
 See [docs/metrics.md](docs/metrics.md) and [docs/detection.md](docs/detection.md)
 for the exact, code-verified list of what's computed — including what's
@@ -103,7 +160,7 @@ Full detail, including explicit limitations, in
 
 ## Demo
 
-Two independent demos exist. Both are verified to run from a clean clone.
+Four independent demos exist. Each is verified to run from a clean clone.
 
 **Static dashboard** — click through example runs in a browser:
 
@@ -112,15 +169,31 @@ python3 -m http.server 8000
 # then open http://127.0.0.1:8000/frontend/dashboard.html
 ```
 
-**Runtime pipeline demo** — watch the actual pipeline run, end to end, in
-a terminal (zero external dependencies, no network access required):
+**Operational pipeline demo** — watch the operational pipeline run on
+synthetic events, end to end, in a terminal (zero external dependencies, no network access required):
 
 ```bash
 python3 -m venv .venv
 .venv/bin/python3 backend/run_demo.py
 ```
 
-See [docs/demo.md](docs/demo.md) for a full walkthrough of both.
+**Drift and stability demo** — nine synthetic scenarios on the passive
+evaluators (needs `pip install -r backend/requirements.txt`; synthetic inputs,
+not a pipeline):
+
+```bash
+.venv/bin/python3 backend/m2_demo.py
+```
+
+**Belief versus reality demo** — the main scenario: seven simulated cases of
+the gap between what a system believes (M2) and what reality shows (M1), with
+a health status (same setup as above; simulated inputs, not a pipeline):
+
+```bash
+.venv/bin/python3 backend/kernel_output_demo.py
+```
+
+See [docs/demo.md](docs/demo.md) for a full walkthrough of all four.
 
 ![Run dashboard](docs/assets/screenshots/run-dashboard.png)
 
@@ -128,7 +201,7 @@ See [docs/demo.md](docs/demo.md) for a full walkthrough of both.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r backend/requirements.txt        # empty — no runtime deps
+.venv/bin/pip install -r backend/requirements.txt        # rfc8785, used by the M3 evaluator only
 .venv/bin/pip install -r backend/requirements-dev.txt     # lint/type/test/security tooling
 ```
 
@@ -143,7 +216,7 @@ Run the full validation gate (same as CI):
 
 ```bash
 .venv/bin/flake8 backend
-.venv/bin/mypy backend/app backend/run_demo.py
+.venv/bin/mypy backend/app backend/run_demo.py backend/m2_demo.py backend/kernel_output_demo.py
 cd backend && ../.venv/bin/pytest -q && cd ..
 .venv/bin/bandit -r backend
 ```
@@ -160,11 +233,21 @@ cd backend && ../.venv/bin/pytest -q && cd ..
 - Slack/Discord notification formatting and webhook dispatch
 - Deterministic run replay and two-run comparison (noise vs. material diff)
 - Static Run Explorer dashboard over example data
-- Zero-dependency, single-command terminal demo of the full pipeline
+- Zero-dependency, single-command terminal demo of the operational pipeline
+  (synthetic events)
 - One versioned metrics→detection handoff artifact (`run.count` only)
+- Passive drift magnitude, M1 observation producer, and M3 behavioral
+  stability evaluators, each on caller-supplied inputs (synthetic demo only;
+  not a pipeline)
+- Kernel output assembler (drift, bias, stability, status) over those
+  evaluators, with a seven-scenario simulated demo
 
 **Planned**
 
+- A real pipeline feeding the drift and stability evaluators: evidence
+  collection and qualification, a qualification store, an M2 producer with an
+  authoritative source of target and system version, and a producer of M3 run
+  records (currently: all supplied by the caller)
 - HTTP API and durable persistence (currently: in-process Python module API
   only, no server, no database)
 - Live dashboard feed from the detection engine (currently: dashboard shows
