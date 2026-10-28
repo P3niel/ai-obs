@@ -1,7 +1,8 @@
 # Demo Guide
 
 There are two separate demos in this repo: a static dashboard you click
-through, and a terminal script that runs the actual pipeline end to end.
+through, and a terminal script that runs the operational pipeline on
+synthetic events.
 They are independent — the terminal demo does not read or write the
 dashboard's files.
 
@@ -44,8 +45,8 @@ http://127.0.0.1:8000/frontend/dashboard.html
 
 ## Runtime Pipeline Demo
 
-`backend/run_demo.py` is a separate, additive demonstration of the full
-observable runtime pipeline, distinct from the static dashboard above:
+`backend/run_demo.py` is a separate, additive demonstration of the
+operational pipeline on synthetic events, distinct from the static dashboard above:
 
 ```text
 Event Generator -> Kernel -> Storage -> Metrics -> Detection -> Console

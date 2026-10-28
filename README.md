@@ -45,16 +45,21 @@ divergence a first-class, observable thing:
 Gap = Representation − Reality
 ```
 
-In this MVP, that's not a metaphor — it's the literal mechanism at the
-core of the Kernel (`backend/app/kernel.py`): every run step declares an
-*expected state*, every observation reports a *observed state*, and the
-Kernel computes a deterministic diff between the two (`MATCH` /
-`MISMATCH`, with the specific missing, unexpected, and mismatched keys).
-That's the whole of what "Gap" means today: a narrow, per-run,
-key/value comparison — not a statistical drift detector, not a
-confidence-recalibration system, not a trend over time. Those are
-directions the project could grow into, not things it does now (see
-[Roadmap](#roadmap)).
+In this MVP, that's not a metaphor. In the Kernel (`backend/app/kernel.py`)
+every run step declares an *expected state*, every observation reports an
+*observed state*, and the Kernel computes a deterministic diff between the
+two (`MATCH` / `MISMATCH`, with the specific missing, unexpected, and
+mismatched keys): a narrow, per-run, key/value comparison.
+
+On top of it, the passive drift evaluator computes `D = |M1 − M2|` between
+what qualified evidence says happened (M1) and what the system believes
+(M2), and the Kernel output assembler turns `D` and behavioral stability
+into a health status (see [Concepts](docs/concepts.md)). `D` is a
+magnitude with no threshold in the evaluator, and in this repository M1, M2
+and the run records are supplied by the demos. It is not a statistical
+drift detector over time, not a confidence-recalibration system, and not a
+correction mechanism. Those are directions the project could grow into, not
+things it does now (see [Roadmap](#roadmap)).
 
 ## Why
 
@@ -94,8 +99,9 @@ Everything below is implemented and covered by tests in `backend/tests/`:
   over embedded example Kernel payloads: filtering, per-run timelines,
   error/mismatch highlighting, and evaluation deltas.
 - **`backend/run_demo.py`** — a single-command, zero-dependency, terminal
-  demonstration of the full pipeline (event → Kernel → metrics →
-  detection → console), separate from the static dashboard.
+  demonstration of the operational pipeline on synthetic events (event →
+  Kernel → metrics → detection → console), separate from the static
+  dashboard. It is not a collect-qualify-produce pipeline.
 - **`backend/app/passive_drift_evaluation.py`** — a passive, read-only
   evaluation of one run's drift magnitude `D = |M1 − M2|` from caller-supplied
   M1 (observed outcome) and M2 (represented outcome) scores, or a structured
@@ -163,8 +169,8 @@ python3 -m http.server 8000
 # then open http://127.0.0.1:8000/frontend/dashboard.html
 ```
 
-**Runtime pipeline demo** — watch the actual pipeline run, end to end, in
-a terminal (zero external dependencies, no network access required):
+**Operational pipeline demo** — watch the operational pipeline run on
+synthetic events, end to end, in a terminal (zero external dependencies, no network access required):
 
 ```bash
 python3 -m venv .venv
@@ -227,7 +233,8 @@ cd backend && ../.venv/bin/pytest -q && cd ..
 - Slack/Discord notification formatting and webhook dispatch
 - Deterministic run replay and two-run comparison (noise vs. material diff)
 - Static Run Explorer dashboard over example data
-- Zero-dependency, single-command terminal demo of the full pipeline
+- Zero-dependency, single-command terminal demo of the operational pipeline
+  (synthetic events)
 - One versioned metrics→detection handoff artifact (`run.count` only)
 - Passive drift magnitude, M1 observation producer, and M3 behavioral
   stability evaluators, each on caller-supplied inputs (synthetic demo only;

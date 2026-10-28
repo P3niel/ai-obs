@@ -117,13 +117,13 @@ small gap but unstable behavior:
 ```text
 [1] Belief matches reality, stable behavior
     reality (M1) = 1   belief (M2) = 0.95
-    gap (drift) = 0.05
+    gap (drift) = 0.05   bias = 0.05 (derived from drift)
     stability = 0.95 (M3 1 - drift)
     status = healthy
 
 [4] Small gap but unstable behavior
     reality (M1) = 1   belief (M2) = 0.95
-    gap (drift) = 0.05
+    gap (drift) = 0.05   bias = 0.05 (derived from drift)
     stability = 0.2833 (M3 0.3333 - drift)
     status = unclassified (HEALTH_REGION_UNDEFINED)
 ```
