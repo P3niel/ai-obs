@@ -43,7 +43,7 @@ python3 -m venv .venv
 
 The preview is published as the tag
 [`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
-Start with [Start Here](#start-here) below.
+[Start Here](#start-here).
 
 An AI system's internal signals — a tool call returning `200`, a step
 finishing "successfully" — can look fine while the actual outcome quietly
@@ -84,7 +84,7 @@ question.
 
 The preview is published as the tag
 [`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
-Start with [Start Here](#start-here) below.
+Start with [Start Here](#start-here) above.
 
 Everything below is implemented and covered by tests in `backend/tests/`:
 
