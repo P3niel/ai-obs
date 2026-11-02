@@ -1,12 +1,16 @@
 # AI-Obs
 
-AI-Obs is an observability layer for AI-agent runtimes: it captures what a
-run *expected* to happen against what it *actually observed*, computes the
-delta between the two, and surfaces metrics and alerts over that delta.
+**Status: Technical Preview.** An AI system can report that it succeeded while
+the real outcome says it did not. AI-Obs puts two things side by side: what the
+system believes about its own result, and what qualified external evidence says
+happened. It shows the gap as a number from 0 to 1, with a health status.
 
-**Status: MVP.** Everything under [Current Status](#current-status) below
-is real and tested. Everything under Planned is not — and the README says
-so explicitly rather than blurring the line.
+In this preview all inputs are simulated, the output is informational, and
+nothing is corrected automatically. The repository also contains an operational
+layer (metrics, detection, alerts) shown by `backend/run_demo.py`. Everything
+under [Current Status](#current-status) below is real and tested; everything
+under Planned is not.
+
 
 ## Start Here
 
@@ -35,6 +39,11 @@ python3 -m venv .venv
 ```
 
 ## What is AI-Obs?
+
+
+The preview is published as the tag
+[`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
+Start with [Start Here](#start-here) below.
 
 An AI system's internal signals — a tool call returning `200`, a step
 finishing "successfully" — can look fine while the actual outcome quietly
@@ -72,6 +81,10 @@ did matches what actually happened. AI-Obs starts from that second
 question.
 
 ## What the MVP Does
+
+The preview is published as the tag
+[`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
+Start with [Start Here](#start-here) below.
 
 Everything below is implemented and covered by tests in `backend/tests/`:
 
@@ -160,7 +173,8 @@ Full detail, including explicit limitations, in
 
 ## Demo
 
-Four independent demos exist. Each is verified to run from a clean clone.
+Four independent demos exist. The three terminal demos are verified to run from
+a clean clone and to give the same output twice.
 
 **Static dashboard** — click through example runs in a browser:
 
