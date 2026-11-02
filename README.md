@@ -3,16 +3,19 @@
 **Make the gap between an AI system's reported outcome and external evidence observable.**
 
 A run can complete without errors while its outcome falls short. AI-Obs explores
-how to expose that gap: compare what the system believes happened with what
-qualified external evidence says happened, then report drift and behavioral
-stability alongside operational run data.
+how to expose that gap by comparing the observed outcome from qualified external
+evidence (**M1**) with the system's represented outcome (**M2**). Separate
+operational tools inspect recorded runs, metrics, and alerts.
 
 **Status: Technical Preview.** This is a showcase prototype with deterministic,
 simulated demos. The Python evaluators and operational tools are implemented;
 a real evidence collection and qualification pipeline is still planned.
 Evaluation outputs are informational and never trigger corrective action.
 
-[Quick start](#quick-start) · [Concepts](#what-ai-obs-measures) ·
+The published preview is available as
+[`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
+
+[Quick start](#quick-start) · [Measures](#what-ai-obs-measures) ·
 [Demos](#demo) · [Current status](#current-status) · [Documentation](#documentation)
 
 ## Quick Start
@@ -29,7 +32,8 @@ python3 -m venv .venv
 ```
 
 The main demo runs seven simulated belief-versus-reality scenarios through the
-passive drift evaluator, M3 evaluator, and Kernel output assembler. Three examples:
+passive drift evaluator, behavioral stability (M3) evaluator, and Kernel output
+assembler. Three examples:
 
 | Simulated outcome | M1 | M2 | Drift | Stability | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -151,6 +155,9 @@ See the [demo guide](docs/demo.md) for walkthroughs and expected results.
 - The versioned metrics/detection handoff covers `run.count` only.
 - The project does not perform autonomous correction, retraining, weight
   adjustment, or rollback. Hosted and multi-tenant deployment are out of scope.
+
+See [What this showcase does not claim](docs/concepts.md#what-this-showcase-does-not-claim)
+for the detailed limits of the simulated outcome evaluations.
 
 ## Roadmap
 
