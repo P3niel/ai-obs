@@ -40,11 +40,6 @@ python3 -m venv .venv
 
 ## What is AI-Obs?
 
-
-The preview is published as the tag
-[`v0.1.0-preview`](https://github.com/P3niel/ai-obs/tree/v0.1.0-preview).
-[Start Here](#start-here).
-
 An AI system's internal signals — a tool call returning `200`, a step
 finishing "successfully" — can look fine while the actual outcome quietly
 diverges from what was expected. AI-Obs is built around making that
